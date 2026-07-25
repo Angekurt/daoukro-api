@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Filament\Resources\Hebergements\Tables;
+
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+
+class HebergementsTable
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->columns([
+                ImageColumn::make('photo')->label(''),
+                TextColumn::make('nom')->searchable()->weight('bold'),
+                TextColumn::make('type')->badge(),
+                TextColumn::make('ville.nom')->label('Ville'),
+                TextColumn::make('telephone'),
+                TextColumn::make('prix_min')->label('Prix min')->numeric(),
+                IconColumn::make('is_active')->label('Actif')->boolean(),
+                TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                //
+            ])
+            ->recordActions([
+                EditAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+}

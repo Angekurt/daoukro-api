@@ -8,12 +8,15 @@
 set -e
 
 PHP=/opt/alt/php83/usr/bin/php
+COMPOSER=/usr/local/bin/composer
 
 echo "== 1. Récupération du code =="
 git pull origin main
 
 echo "== 2. Dépendances =="
-composer install --no-dev --optimize-autoloader
+# Le wrapper "composer" seul utilise le PHP 8.2 par défaut du serveur — on force
+# le binaire PHP 8.3 en l'invoquant explicitement (voir piège n°1 du runbook).
+$PHP $COMPOSER install --no-dev --optimize-autoloader
 
 echo "== 3. Purge des caches (obligatoire avant toute vérif) =="
 $PHP artisan config:clear

@@ -1,3 +1,8 @@
+# PHP 8.3 (alt-php83) — nécessaire uniquement sur l'hébergement LWS/CloudLinux
+# en production (voir DEPLOIEMENT_API_DAOUKRO.md, piège n°4). Inoffensif en
+# local (Laragon ignore cette directive).
+AddHandler application/x-httpd-alt-php83___lsphp .php
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

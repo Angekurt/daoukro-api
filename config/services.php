@@ -42,4 +42,13 @@ return [
         'credentials_path' => env('FCM_CREDENTIALS_PATH', storage_path('app/firebase-service-account.json')),
     ],
 
+    // Connexion Google (app mobile) — client_id "Web" auto-créé par Firebase
+    // dès que Google est activé comme fournisseur dans Authentication >
+    // Sign-in method. C'est CE client_id (pas celui de l'app Android) qui
+    // doit être utilisé côté Flutter comme `serverClientId`, pour que
+    // l'idToken renvoyé ait bien cette audience-là et soit vérifiable ici.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+    ],
+
 ];

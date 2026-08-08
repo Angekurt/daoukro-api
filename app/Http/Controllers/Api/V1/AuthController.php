@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Citoyen;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -62,6 +64,69 @@ class AuthController extends Controller
             'message' => 'Connexion réussie',
             'token'   => $token,
             'user'    => $user,
+        ]);
+    }
+
+    // Connexion citoyenne via Google (app mobile) — crée le compte au premier
+    // passage, le retrouve ensuite. Sépare volontairement les comptes
+    // citoyens (table `citoyens`) des comptes admin/modérateur (`users`).
+    public function google(Request $request): JsonResponse
+    {
+        $request->validate([
+            'id_token' => 'required|string',
+        ]);
+
+        // Vérifie le jeton auprès de Google (signature + expiration) — pas
+        // de dépendance supplémentaire nécessaire pour ça.
+        $reponse = Http::get('https://oauth2.googleapis.com/tokeninfo', [
+            'id_token' => $request->id_token,
+        ]);
+
+        if (!$reponse->successful()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jeton Google invalide ou expiré.',
+            ], 401);
+        }
+
+        $payload = $reponse->json();
+
+        $clientId = config('services.google.client_id');
+        if (!$clientId || ($payload['aud'] ?? null) !== $clientId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jeton Google non reconnu pour cette application.',
+            ], 401);
+        }
+
+        $citoyen = Citoyen::where('google_id', $payload['sub'])->first();
+
+        if ($citoyen) {
+            $citoyen->update([
+                'name' => $payload['name'] ?? $citoyen->name,
+                'avatar_url' => $payload['picture'] ?? $citoyen->avatar_url,
+            ]);
+        } else {
+            $citoyen = Citoyen::create([
+                'google_id' => $payload['sub'],
+                'name' => $payload['name'] ?? ($payload['email'] ?? 'Citoyen'),
+                'email' => $payload['email'] ?? null,
+                'avatar_url' => $payload['picture'] ?? null,
+            ]);
+        }
+
+        $token = $citoyen->createToken('mobile')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Connexion réussie',
+            'token' => $token,
+            'user' => [
+                'id' => $citoyen->id,
+                'nom' => $citoyen->name,
+                'email' => $citoyen->email,
+                'avatar_url' => $citoyen->avatar_url,
+            ],
         ]);
     }
 

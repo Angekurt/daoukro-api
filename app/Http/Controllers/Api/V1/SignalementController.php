@@ -20,7 +20,12 @@ class SignalementController extends Controller
             'longitude' => 'nullable|numeric',
             'auteur' => 'nullable|string|max:100',
             'telephone' => 'nullable|string|max:30',
+            'photo' => 'nullable|image|max:5120',
         ]);
+
+        if ($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')->store('signalements', 'public');
+        }
 
         $signalement = Signalement::create($data);
 

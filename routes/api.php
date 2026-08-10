@@ -61,11 +61,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/actualites',      [ActualiteController::class, 'index']);
     Route::get('/actualites/{id}', [ActualiteController::class, 'show']);
 
-    // ── Avis (artisans, hébergements) ──────────────────────────
+    // ── Avis (artisans, hébergements, immobilier, annonces) ────────────────────
     Route::get('/{type}/{id}/avis', [AvisController::class, 'index'])
-        ->where('type', 'artisan|hebergement');
+        ->where('type', 'artisan|hebergement|immobilier|annonce');
     Route::post('/{type}/{id}/avis', [AvisController::class, 'store'])
-        ->where('type', 'artisan|hebergement');
+        ->where('type', 'artisan|hebergement|immobilier|annonce');
 
     // ── Signalements citoyens ───────────────────────────────────
     Route::post('/signalements', [SignalementController::class, 'store']);

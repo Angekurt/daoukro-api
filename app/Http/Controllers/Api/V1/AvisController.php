@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class AvisController extends Controller
 {
-    private const TYPES_AUTORISES = ['artisan', 'hebergement'];
+    private const TYPES_AUTORISES = ['artisan', 'hebergement', 'immobilier', 'annonce'];
 
     // Avis validés (modérés) pour une fiche donnée, plus récents en premier.
     public function index(string $type, int $id): JsonResponse

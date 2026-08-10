@@ -24,5 +24,27 @@ class Citoyen extends Authenticatable
         'name',
         'email',
         'avatar_url',
+        'telephone',
+        'bio',
     ];
+
+    public function artisans()
+    {
+        return $this->hasMany(Artisan::class);
+    }
+
+    public function hebergements()
+    {
+        return $this->hasMany(Hebergement::class);
+    }
+
+    public function immobiliers()
+    {
+        return $this->hasMany(Immobilier::class);
+    }
+
+    public function annonces()
+    {
+        return $this->hasMany(Annonce::class);
+    }
 }

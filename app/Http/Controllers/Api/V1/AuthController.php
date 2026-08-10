@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
@@ -64,6 +65,95 @@ class AuthController extends Controller
             'message' => 'Connexion réussie',
             'token'   => $token,
             'user'    => $user,
+        ]);
+    }
+
+    // ── Auth citoyens email (PWA daoukro-pro) ──────────────────────────────
+
+    /**
+     * Inscription citoyen par email — alternative à Google pour ceux qui
+     * n'ont pas de compte Google.
+     */
+    public function registerCitoyen(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name'      => 'required|string|max:100',
+            'prenom'    => 'nullable|string|max:100',
+            'email'     => 'required|email|unique:citoyens,email',
+            'telephone' => 'nullable|string|max:20',
+            'password'  => 'required|string|min:8|confirmed',
+        ]);
+
+        $citoyen = Citoyen::create([
+            'name'          => $request->name,
+            'prenom'        => $request->prenom,
+            'email'         => $request->email,
+            'telephone'     => $request->telephone,
+            'password'      => Hash::make($request->password),
+            'auth_provider' => 'email',
+            'est_actif'     => true,
+            'statut'        => 'actif',
+        ]);
+
+        $token = $citoyen->createToken('daoukro-pro')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Compte créé avec succès.',
+            'token'   => $token,
+            'user'    => [
+                'id'         => $citoyen->id,
+                'nom'        => $citoyen->name,
+                'prenom'     => $citoyen->prenom,
+                'email'      => $citoyen->email,
+                'avatar_url' => null,
+                'telephone'  => $citoyen->telephone,
+            ],
+        ], 201);
+    }
+
+    /**
+     * Connexion citoyen par email + mot de passe (PWA daoukro-pro).
+     */
+    public function loginCitoyen(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        $citoyen = Citoyen::where('email', $request->email)
+            ->where('auth_provider', 'email')
+            ->first();
+
+        if (!$citoyen || !Hash::check($request->password, $citoyen->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email ou mot de passe incorrect.',
+            ], 401);
+        }
+
+        if (!$citoyen->est_actif || $citoyen->statut === 'suspendu') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce compte a été suspendu. Contactez le support.',
+            ], 403);
+        }
+
+        $token = $citoyen->createToken('daoukro-pro')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Connexion réussie.',
+            'token'   => $token,
+            'user'    => [
+                'id'         => $citoyen->id,
+                'nom'        => $citoyen->name,
+                'prenom'     => $citoyen->prenom,
+                'email'      => $citoyen->email,
+                'avatar_url' => $citoyen->avatar_url,
+                'telephone'  => $citoyen->telephone,
+            ],
         ]);
     }
 

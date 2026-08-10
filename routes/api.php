@@ -69,6 +69,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/{type}/{id}/avis', [AvisController::class, 'store'])
         ->where('type', 'artisan|hebergement|immobilier|annonce');
 
+    // ── Intérêt emploi (citoyen connecté requis) ──────────────────────────────
+    // Route publique car l'auth est vérifiée dans le controller (citoyen ou anonyme)
+    Route::get('/annonces/{id}/interets', [AnnonceController::class, 'statsInterets']);
+
     // ── Signalements citoyens ───────────────────────────────────
     Route::post('/signalements', [SignalementController::class, 'store']);
 
@@ -80,9 +84,11 @@ Route::prefix('v1')->group(function () {
     Route::post('/notifications/envoyer', [NotificationController::class, 'envoyer']);
 
     // ── Authentification ──────────────────────────────────────
-    Route::post('/auth/register', [AuthController::class, 'register']);
-    Route::post('/auth/login',    [AuthController::class, 'login']);
-    Route::post('/auth/google',   [AuthController::class, 'google']);
+    Route::post('/auth/register',         [AuthController::class, 'register']);        // admin
+    Route::post('/auth/login',            [AuthController::class, 'login']);           // admin
+    Route::post('/auth/google',           [AuthController::class, 'google']);          // citoyens Google
+    Route::post('/auth/citoyen/register', [AuthController::class, 'registerCitoyen']); // citoyens email
+    Route::post('/auth/citoyen/login',    [AuthController::class, 'loginCitoyen']);    // citoyens email
 
     // ── Plans tarifaires (lecture publique) ───────────────────
     Route::get('/plans', [PlanController::class, 'index']);
@@ -107,6 +113,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // ── Profil citoyen (PWA daoukro-pro) ─────────────────────────────────────
     Route::get('/profil', [ProfilController::class, 'show']);
     Route::put('/profil', [ProfilController::class, 'update']);
+
+    // ── Intérêt emploi (connecté requis) ─────────────────────────────────────
+    Route::post('/annonces/{id}/interet',   [AnnonceController::class, 'marquerInteret']);
+    Route::delete('/annonces/{id}/interet', [AnnonceController::class, 'retirerInteret']);
 
     // ── Teams (multi-comptes) ─────────────────────────────────────────────────
     Route::get('/teams',                                     [TeamController::class, 'index']);

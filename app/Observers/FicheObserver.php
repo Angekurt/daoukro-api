@@ -4,7 +4,9 @@ namespace App\Observers;
 
 use App\Mail\FicheRejetee;
 use App\Mail\FicheValidee;
+use App\Models\User;
 use App\Services\FcmService;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -31,6 +33,31 @@ class FicheObserver
 
     // Types de fiche qui déclenchent une push publique lors de la publication
     private const TYPES_PUSH_PUBLIQUE = ['Annonce', 'Actualite'];
+
+    /** Déclenché à la création d'une nouvelle fiche soumise depuis la PWA */
+    public function created(Model $fiche): void
+    {
+        $classe   = class_basename($fiche);
+        $label    = self::LABELS[$classe] ?? $classe;
+        $nomFiche = $fiche->nom ?? $fiche->titre ?? '—';
+
+        // Notification Filament pour tous les admins et modérateurs
+        try {
+            $admins = User::all();
+            foreach ($admins as $admin) {
+                FilamentNotification::make()
+                    ->title("Nouvelle soumission — {$label}")
+                    ->body("{$nomFiche} · Soumis par " . ($fiche->citoyen?->name ?? 'Inconnu'))
+                    ->warning()
+                    ->icon('heroicon-o-document-plus')
+                    ->sendToDatabase($admin);
+            }
+        } catch (\Throwable $e) {
+            Log::warning("FicheObserver: échec notif admin créa [{$classe}#{$fiche->id}]", [
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 
     public function updated(Model $fiche): void
     {

@@ -20,13 +20,18 @@ class Citoyen extends Authenticatable
     use HasApiTokens;
 
     protected $fillable = [
-        'google_id', 'name', 'email', 'avatar_url',
+        'google_id', 'name', 'prenom', 'email', 'avatar_url',
+        'password', 'auth_provider', 'est_actif', 'statut', 'note_admin',
         'telephone', 'bio', 'plan', 'plan_expire_at', 'plan_details',
     ];
 
+    protected $hidden = ['password'];
+
     protected $casts = [
-        'plan_expire_at' => 'datetime',
-        'plan_details'   => 'array',
+        'plan_expire_at'     => 'datetime',
+        'plan_details'       => 'array',
+        'est_actif'          => 'boolean',
+        'email_verified_at'  => 'datetime',
     ];
 
     /** Retourne le plan effectif en tenant compte de l'expiration */

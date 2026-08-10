@@ -31,13 +31,15 @@ class Avis extends Model
         return $query->where('statut', 'pending');
     }
 
-    // Le modèle Eloquent (Artisan ou Hebergement) concerné par cet avis.
+    // Le modèle Eloquent concerné par cet avis.
     public function entite(): ?Model
     {
         return match ($this->entity_type) {
-            'artisan' => Artisan::find($this->entity_id),
+            'artisan'     => Artisan::find($this->entity_id),
             'hebergement' => Hebergement::find($this->entity_id),
-            default => null,
+            'immobilier'  => \App\Models\Immobilier::find($this->entity_id),
+            'annonce'     => \App\Models\Annonce::find($this->entity_id),
+            default       => null,
         };
     }
 

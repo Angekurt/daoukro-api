@@ -2,49 +2,94 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Annonce;
 use App\Models\Artisan;
 use App\Models\Avis;
+use App\Models\Citoyen;
 use App\Models\FcmToken;
 use App\Models\Hebergement;
+use App\Models\Immobilier;
 use App\Models\Pharmacie;
-use App\Models\Prestataire;
+use App\Models\Signalement;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Carbon;
 
 class StatsApp extends StatsOverviewWidget
 {
+    protected static ?int $sort = 1;
+
     protected function getStats(): array
     {
-        $candidatures = Prestataire::pending()->count();
         $avisEnAttente = Avis::pending()->count();
+        $signalEnAttente = Signalement::where('statut', 'en_attente')->count();
+
+        $fichesEnAttente = Artisan::where('is_active', false)->whereNotNull('citoyen_id')->count()
+            + Hebergement::where('is_active', false)->whereNotNull('citoyen_id')->count()
+            + Immobilier::where('is_active', false)->whereNotNull('citoyen_id')->count()
+            + Annonce::where('is_active', false)->whereNotNull('citoyen_id')->count();
+
+        $nouveauxComptesMonth = Citoyen::where('created_at', '>=', Carbon::now()->startOfMonth())->count();
+
+        $abonnesActifs = Citoyen::whereIn('plan', ['standard', 'pro', 'business'])
+            ->where(function ($q) {
+                $q->whereNull('plan_expire_at')->orWhere('plan_expire_at', '>', now());
+            })->count();
 
         return [
+            Stat::make('Fiches en attente', $fichesEnAttente)
+                ->description($fichesEnAttente > 0 ? 'À valider ou rejeter' : 'Tout est traité')
+                ->icon('heroicon-o-document-check')
+                ->color($fichesEnAttente > 0 ? 'warning' : 'success'),
+
+            Stat::make('Artisans publiés', Artisan::where('is_active', true)->count())
+                ->description("Dans l'app mobile")
+                ->icon('heroicon-o-wrench-screwdriver')
+                ->color('success'),
+
+            Stat::make('Hébergements publiés', Hebergement::where('is_active', true)->count())
+                ->description("Dans l'app mobile")
+                ->icon('heroicon-o-building-office-2')
+                ->color('success'),
+
+            Stat::make('Biens immobiliers', Immobilier::where('is_active', true)->count())
+                ->description('Publiés dans l\'app')
+                ->icon('heroicon-o-home')
+                ->color('success'),
+
+            Stat::make('Annonces actives', Annonce::where('is_active', true)->count())
+                ->description('Publiées dans l\'app')
+                ->icon('heroicon-o-megaphone')
+                ->color('success'),
+
             Stat::make('Pharmacies actives', Pharmacie::where('is_active', true)->count())
                 ->icon('heroicon-o-plus-circle')
                 ->color('success'),
 
-            Stat::make('Artisans actifs', Artisan::where('is_active', true)->count())
-                ->icon('heroicon-o-wrench-screwdriver')
-                ->color('success'),
+            Stat::make('Comptes pros', Citoyen::count())
+                ->description("+{$nouveauxComptesMonth} ce mois-ci")
+                ->icon('heroicon-o-users')
+                ->color('primary'),
 
-            Stat::make('Hébergements', Hebergement::where('is_active', true)->count())
-                ->icon('heroicon-o-building-office-2')
-                ->color('success'),
+            Stat::make('Abonnés payants', $abonnesActifs)
+                ->description('Plans Standard / Pro / Business actifs')
+                ->icon('heroicon-o-credit-card')
+                ->color($abonnesActifs > 0 ? 'success' : 'gray'),
 
-            Stat::make('Candidatures en attente', $candidatures)
-                ->description($candidatures > 0 ? 'À traiter' : 'Rien en attente')
-                ->icon('heroicon-o-identification')
-                ->color($candidatures > 0 ? 'warning' : 'gray'),
+            Stat::make('Appareils enregistrés', FcmToken::count())
+                ->description('Notifications push activées')
+                ->icon('heroicon-o-device-phone-mobile')
+                ->color('primary'),
 
-            Stat::make('Avis en attente', $avisEnAttente)
-                ->description($avisEnAttente > 0 ? 'À modérer' : 'Rien en attente')
+            Stat::make('Avis à modérer', $avisEnAttente)
+                ->description($avisEnAttente > 0 ? 'En attente de validation' : 'Tout est traité')
                 ->icon('heroicon-o-star')
                 ->color($avisEnAttente > 0 ? 'warning' : 'gray'),
 
-            Stat::make('Appareils avec l\'app installée', FcmToken::count())
-                ->description('Notifications activées')
-                ->icon('heroicon-o-device-phone-mobile')
-                ->color('primary'),
+            Stat::make('Signalements en attente', $signalEnAttente)
+                ->description($signalEnAttente > 0 ? 'À traiter' : 'Aucun en attente')
+                ->icon('heroicon-o-exclamation-triangle')
+                ->color($signalEnAttente > 0 ? 'danger' : 'gray'),
         ];
     }
 }

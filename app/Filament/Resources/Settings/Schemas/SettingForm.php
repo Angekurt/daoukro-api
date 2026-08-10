@@ -25,11 +25,12 @@ class SettingForm
                 Select::make('groupe')
                     ->label('Groupe')
                     ->options([
-                        'support' => 'Support',
-                        'contenu' => 'Contenu',
+                        'plans'    => 'Plans tarifaires',
+                        'support'  => 'Support',
+                        'contenu'  => 'Contenu',
                         'urgences' => 'Urgences',
                         'technique' => 'Technique',
-                        'general' => 'Général',
+                        'general'  => 'Général',
                     ])
                     ->default('general')
                     ->required(),

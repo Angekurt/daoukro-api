@@ -17,7 +17,7 @@ class ActiviteChart extends ChartWidget
     protected ?string $heading = 'Activité des 30 derniers jours';
     protected ?string $description = 'Fiches soumises, avis reçus, signalements, nouveaux comptes';
 
-    public string $filter = '30';
+    public ?string $filter = '30';
 
     protected function getFilters(): ?array
     {

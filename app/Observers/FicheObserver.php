@@ -49,7 +49,6 @@ class FicheObserver
                     ->title("Nouvelle soumission — {$label}")
                     ->body("{$nomFiche} · Soumis par " . ($fiche->citoyen?->name ?? 'Inconnu'))
                     ->warning()
-                    ->icon('heroicon-o-document-plus')
                     ->sendToDatabase($admin);
             }
         } catch (\Throwable $e) {

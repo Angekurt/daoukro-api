@@ -15,7 +15,6 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -28,7 +27,7 @@ class CitoyenResource extends Resource
     protected static ?string $model = Citoyen::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
     protected static ?string $navigationLabel = 'Comptes Pros';
-    protected static ?string $navigationGroup = 'Utilisateurs';
+    protected static string|BackedEnum|null $navigationGroup = null;
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function getNavigationBadge(): ?string

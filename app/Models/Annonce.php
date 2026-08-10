@@ -10,9 +10,9 @@ class Annonce extends Model
     use HasPhotoGallery;
 
     protected $fillable = [
-        'ville_id', 'titre', 'description', 'type', 'categorie',
+        'citoyen_id', 'ville_id', 'titre', 'description', 'type', 'categorie',
         'auteur', 'lieu', 'date_debut', 'date_fin',
-        'contact', 'telephone', 'email', 'lien', 'photo', 'photos', 'is_active',
+        'contact', 'telephone', 'email', 'lien', 'photo', 'photos', 'is_active', 'motif_rejet',
     ];
 
     protected $casts = [
@@ -25,5 +25,10 @@ class Annonce extends Model
     public function ville()
     {
         return $this->belongsTo(Ville::class);
+    }
+
+    public function citoyen()
+    {
+        return $this->belongsTo(Citoyen::class);
     }
 }

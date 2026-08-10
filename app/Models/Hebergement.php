@@ -10,9 +10,9 @@ class Hebergement extends Model
     use HasPhotoGallery;
 
     protected $fillable = [
-        'ville_id', 'nom', 'type', 'description', 'adresse',
+        'citoyen_id', 'ville_id', 'nom', 'type', 'description', 'adresse',
         'telephone', 'email', 'whatsapp', 'latitude', 'longitude',
-        'prix_min', 'prix_max', 'photo', 'photos', 'note', 'nb_avis', 'is_active',
+        'prix_min', 'prix_max', 'photo', 'photos', 'note', 'nb_avis', 'is_active', 'motif_rejet',
     ];
 
     protected $casts = [
@@ -24,5 +24,10 @@ class Hebergement extends Model
     public function ville()
     {
         return $this->belongsTo(Ville::class);
+    }
+
+    public function citoyen()
+    {
+        return $this->belongsTo(Citoyen::class);
     }
 }

@@ -10,10 +10,10 @@ class Immobilier extends Model
     use HasPhotoGallery;
 
     protected $fillable = [
-        'ville_id', 'titre', 'type_offre', 'type_bien', 'description',
+        'citoyen_id', 'ville_id', 'titre', 'type_offre', 'type_bien', 'description',
         'adresse', 'quartier', 'prix', 'surface', 'nb_chambres',
         'telephone', 'email', 'whatsapp', 'latitude', 'longitude',
-        'photo', 'photos', 'is_active',
+        'photo', 'photos', 'is_active', 'motif_rejet',
     ];
 
     protected $casts = [
@@ -25,5 +25,10 @@ class Immobilier extends Model
     public function ville()
     {
         return $this->belongsTo(Ville::class);
+    }
+
+    public function citoyen()
+    {
+        return $this->belongsTo(Citoyen::class);
     }
 }

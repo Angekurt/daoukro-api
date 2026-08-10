@@ -47,4 +47,18 @@ class Citoyen extends Authenticatable
     {
         return $this->hasMany(Annonce::class);
     }
+
+    /** Équipes dont ce citoyen est propriétaire */
+    public function teams()
+    {
+        return $this->hasMany(\App\Models\Team::class, 'owner_id');
+    }
+
+    /** Équipes dont ce citoyen est membre invité */
+    public function teamsMembre()
+    {
+        return $this->belongsToMany(\App\Models\Team::class, 'team_members', 'citoyen_id', 'team_id')
+                    ->withPivot('role')
+                    ->withTimestamps();
+    }
 }

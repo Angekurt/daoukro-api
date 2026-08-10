@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\AvisController;
 use App\Http\Controllers\Api\V1\SignalementController;
 use App\Http\Controllers\Api\V1\MesSoumissionsController;
 use App\Http\Controllers\Api\V1\ProfilController;
+use App\Http\Controllers\Api\V1\TeamController;
 
 // ═══════════════════════════════════════════════════════════════
 // API v1 — Routes publiques
@@ -94,6 +95,18 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // ── Profil citoyen (PWA daoukro-pro) ─────────────────────────────────────
     Route::get('/profil', [ProfilController::class, 'show']);
     Route::put('/profil', [ProfilController::class, 'update']);
+
+    // ── Teams (multi-comptes) ─────────────────────────────────────────────────
+    Route::get('/teams',                                     [TeamController::class, 'index']);
+    Route::post('/teams',                                    [TeamController::class, 'store']);
+    Route::get('/teams/{id}',                                [TeamController::class, 'show']);
+    Route::put('/teams/{id}',                                [TeamController::class, 'update']);
+    Route::delete('/teams/{id}',                             [TeamController::class, 'destroy']);
+    Route::post('/teams/{id}/inviter',                       [TeamController::class, 'inviter']);
+    Route::post('/teams/{teamId}/membres/{citoyenId}/retirer', [TeamController::class, 'retirerMembre']);
+    Route::post('/teams/{id}/quitter',                       [TeamController::class, 'quitter']);
+    // Acceptation d'invitation (lien dans l'email — citoyen doit être connecté)
+    Route::post('/teams/invitations/{token}/accepter',       [TeamController::class, 'accepterInvitation']);
 
     // ── Auto-dépôt de fiches (PWA daoukro-pro) ───────────────────────────────
 

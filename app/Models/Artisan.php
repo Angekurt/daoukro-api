@@ -10,10 +10,10 @@ class Artisan extends Model
     use HasPhotoGallery;
 
     protected $fillable = [
-        'ville_id', 'nom', 'metier', 'description',
+        'citoyen_id', 'ville_id', 'nom', 'metier', 'description',
         'telephone', 'whatsapp', 'email', 'adresse',
         'latitude', 'longitude', 'photo', 'photos',
-        'note', 'nb_avis', 'disponible', 'is_active',
+        'note', 'nb_avis', 'disponible', 'is_active', 'motif_rejet',
     ];
 
     protected $casts = [
@@ -30,5 +30,10 @@ class Artisan extends Model
     public function ville()
     {
         return $this->belongsTo(Ville::class);
+    }
+
+    public function citoyen()
+    {
+        return $this->belongsTo(Citoyen::class);
     }
 }

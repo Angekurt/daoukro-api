@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\AvisController;
 use App\Http\Controllers\Api\V1\SignalementController;
 use App\Http\Controllers\Api\V1\MesSoumissionsController;
+use App\Http\Controllers\Api\V1\PlanController;
 use App\Http\Controllers\Api\V1\ProfilController;
 use App\Http\Controllers\Api\V1\TeamController;
 
@@ -83,6 +84,12 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/login',    [AuthController::class, 'login']);
     Route::post('/auth/google',   [AuthController::class, 'google']);
 
+    // ── Plans tarifaires (lecture publique) ───────────────────
+    Route::get('/plans', [PlanController::class, 'index']);
+
+    // ── Webhook MoneyFusion (serveur MoneyFusion → notre API) ─
+    Route::post('/paiements/webhook', [PlanController::class, 'webhook']);
+
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -91,6 +98,11 @@ Route::prefix('v1')->group(function () {
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me',      [AuthController::class, 'me']);
+
+    // ── Plans & abonnements ───────────────────────────────────────────────────
+    Route::get('/mon-plan',              [PlanController::class, 'monPlan']);
+    Route::post('/plans/souscrire',      [PlanController::class, 'souscrire']);
+    Route::get('/paiements/verifier',    [PlanController::class, 'verifier']);
 
     // ── Profil citoyen (PWA daoukro-pro) ─────────────────────────────────────
     Route::get('/profil', [ProfilController::class, 'show']);
@@ -112,7 +124,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Artisans
     Route::get('/mes-soumissions/artisans',           [MesSoumissionsController::class, 'mesArtisans']);
-    Route::post('/mes-soumissions/artisans',          [MesSoumissionsController::class, 'storeArtisan']);
+    Route::post('/mes-soumissions/artisans',          [MesSoumissionsController::class, 'storeArtisan'])->middleware('check.plan');
     Route::get('/mes-soumissions/artisans/{id}',      [MesSoumissionsController::class, 'showArtisan']);
     Route::put('/mes-soumissions/artisans/{id}',      [MesSoumissionsController::class, 'updateArtisan']);
     Route::post('/mes-soumissions/artisans/{id}',     [MesSoumissionsController::class, 'updateArtisan']);
@@ -120,7 +132,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Hébergements
     Route::get('/mes-soumissions/hebergements',          [MesSoumissionsController::class, 'mesHebergements']);
-    Route::post('/mes-soumissions/hebergements',         [MesSoumissionsController::class, 'storeHebergement']);
+    Route::post('/mes-soumissions/hebergements',         [MesSoumissionsController::class, 'storeHebergement'])->middleware('check.plan');
     Route::get('/mes-soumissions/hebergements/{id}',     [MesSoumissionsController::class, 'showHebergement']);
     Route::put('/mes-soumissions/hebergements/{id}',     [MesSoumissionsController::class, 'updateHebergement']);
     Route::post('/mes-soumissions/hebergements/{id}',    [MesSoumissionsController::class, 'updateHebergement']);
@@ -129,8 +141,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Immobilier (double alias /immobilier et /immobiliers pour compatibilité PWA)
     Route::get('/mes-soumissions/immobilier',            [MesSoumissionsController::class, 'mesImmobiliers']);
     Route::get('/mes-soumissions/immobiliers',           [MesSoumissionsController::class, 'mesImmobiliers']);
-    Route::post('/mes-soumissions/immobilier',           [MesSoumissionsController::class, 'storeImmobilier']);
-    Route::post('/mes-soumissions/immobiliers',          [MesSoumissionsController::class, 'storeImmobilier']);
+    Route::post('/mes-soumissions/immobilier',           [MesSoumissionsController::class, 'storeImmobilier'])->middleware('check.plan');
+    Route::post('/mes-soumissions/immobiliers',          [MesSoumissionsController::class, 'storeImmobilier'])->middleware('check.plan');
     Route::get('/mes-soumissions/immobilier/{id}',       [MesSoumissionsController::class, 'showImmobilier']);
     Route::get('/mes-soumissions/immobiliers/{id}',      [MesSoumissionsController::class, 'showImmobilier']);
     Route::put('/mes-soumissions/immobilier/{id}',       [MesSoumissionsController::class, 'updateImmobilier']);
@@ -141,7 +153,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Annonces
     Route::get('/mes-soumissions/annonces',          [MesSoumissionsController::class, 'mesAnnonces']);
-    Route::post('/mes-soumissions/annonces',         [MesSoumissionsController::class, 'storeAnnonce']);
+    Route::post('/mes-soumissions/annonces',         [MesSoumissionsController::class, 'storeAnnonce'])->middleware('check.plan');
     Route::get('/mes-soumissions/annonces/{id}',     [MesSoumissionsController::class, 'showAnnonce']);
     Route::put('/mes-soumissions/annonces/{id}',     [MesSoumissionsController::class, 'updateAnnonce']);
     Route::post('/mes-soumissions/annonces/{id}',    [MesSoumissionsController::class, 'updateAnnonce']);

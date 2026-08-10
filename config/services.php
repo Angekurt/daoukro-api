@@ -35,11 +35,17 @@ return [
         ],
     ],
 
-    // FCM HTTP v1 (l'ancienne API legacy fcm.googleapis.com/fcm/send est
-    // fermée par Google) — nécessite un compte de service Firebase.
+    // FCM HTTP v1
     'fcm' => [
-        'project_id' => env('FCM_PROJECT_ID'),
+        'project_id'       => env('FCM_PROJECT_ID'),
         'credentials_path' => env('FCM_CREDENTIALS_PATH', storage_path('app/firebase-service-account.json')),
+    ],
+
+    // MoneyFusion — paiement mobile money CI
+    'moneyfusion' => [
+        'token'      => env('MONEYFUSION_TOKEN'),
+        'base_url'   => env('MONEYFUSION_BASE_URL', 'https://www.pay.moneyfusion.net'),
+        'return_url' => env('MONEYFUSION_RETURN_URL'),
     ],
 
     // Connexion Google (app mobile) — client_id "Web" auto-créé par Firebase

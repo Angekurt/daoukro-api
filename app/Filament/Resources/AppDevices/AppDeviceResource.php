@@ -11,6 +11,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AppDeviceResource extends Resource
 {
@@ -20,7 +21,7 @@ class AppDeviceResource extends Resource
 
     protected static ?string $navigationLabel = 'Appareils & PWA';
 
-    protected static ?string $navigationGroup = 'Administration';
+    protected static UnitEnum|string|null $navigationGroup = 'Administration';
 
     public static function getNavigationBadge(): ?string
     {

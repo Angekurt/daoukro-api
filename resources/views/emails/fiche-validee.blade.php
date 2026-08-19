@@ -31,7 +31,7 @@
       <div class="badge">{{ $typeFiche }} — {{ $nomFiche }}</div>
       <p>Les utilisateurs de l'app peuvent désormais vous trouver, vous contacter et laisser des avis sur votre fiche.</p>
       <p>Merci de contribuer au développement numérique de Daoukro.</p>
-      <a href="https://api-daoukro.akdev.tech" class="cta">Voir l'application</a>
+      <a href="https://daoukro.akdev.ci" class="cta">Voir l'application</a>
     </div>
     <div class="footer">
       <p>Cet email a été envoyé automatiquement par Daoukro Digital. Ne pas répondre à ce message.</p>

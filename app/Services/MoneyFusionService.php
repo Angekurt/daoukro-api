@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
  * Variables .env requises :
  *   MONEYFUSION_TOKEN=votre_token_api
  *   MONEYFUSION_BASE_URL=https://www.pay.moneyfusion.net
- *   MONEYFUSION_RETURN_URL=https://daoukro-pro.akdev.tech/paiement/retour/paiement/retour
+ *   MONEYFUSION_RETURN_URL=https://daoukro-pro.akdev.ci/paiement/retour
  */
 class MoneyFusionService
 {

@@ -38,7 +38,7 @@
       </div>
       @endif
       <p>Vous pouvez corriger votre fiche et la soumettre à nouveau depuis le portail Daoukro Pro.</p>
-      <a href="https://daoukro-pro.akdev.tech" class="cta">Modifier ma fiche</a>
+      <a href="https://daoukro-pro.akdev.ci" class="cta">Modifier ma fiche</a>
     </div>
     <div class="footer">
       <p>Cet email a été envoyé automatiquement par Daoukro Digital. Ne pas répondre à ce message.</p>

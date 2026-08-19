@@ -2,7 +2,7 @@
 
 **Projet :** `api-daoukro`
 **Serveur :** LWS mutualisé — CloudLinux + CageFS + Varnish (`fastestcache`)
-**URL de production :** `https://api-daoukro.akdev.tech/api/v1`
+**URL de production :** `https://api-daoukro.akdev.ci/api/v1`
 **Date de déploiement :** Juillet 2026
 
 ---
@@ -124,7 +124,7 @@ mysql -u c2613905c_akdev -p c2613905c_daoukro_db
 
 | Champ | Valeur |
 |---|---|
-| Domaine | `api-daoukro.akdev.tech` |
+| Domaine | `api-daoukro.akdev.ci` |
 | Partager le document root | **décoché** |
 | **Document Root** | `/home/c2613905c/public_html/api-daoukro/public` |
 
@@ -136,7 +136,7 @@ mysql -u c2613905c_akdev -p c2613905c_daoukro_db
 **Vérification obligatoire :**
 
 ```bash
-curl -sSI https://api-daoukro.akdev.tech/.env
+curl -sSI https://api-daoukro.akdev.ci/.env
 ```
 
 | Code | Signification |
@@ -164,7 +164,7 @@ curl -sSI https://api-daoukro.akdev.tech/.env
 ### 3.3 DNS + SSL
 
 ```bash
-dig +short api-daoukro.akdev.tech    # doit renvoyer l'IP du serveur
+dig +short api-daoukro.akdev.ci    # doit renvoyer l'IP du serveur
 ```
 
 Si vide → **cPanel > Zone Editor** → ajouter un enregistrement `A` : `api-daoukro` → IP du serveur.
@@ -203,7 +203,7 @@ printf '# PHP 8.3 (alt-php83)\nAddHandler application/x-httpd-alt-php83___lsphp 
 Vérification :
 
 ```bash
-curl -sSI https://api-daoukro.akdev.tech/
+curl -sSI https://api-daoukro.akdev.ci/
 # 200 => PHP 8.3 actif
 # 500 => handler incorrect
 ```
@@ -217,7 +217,7 @@ APP_NAME=Daoukro
 APP_ENV=production
 APP_KEY=base64:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=
 APP_DEBUG=false
-APP_URL=https://api-daoukro.akdev.tech
+APP_URL=https://api-daoukro.akdev.ci
 
 APP_LOCALE=fr
 APP_FALLBACK_LOCALE=fr
@@ -238,10 +238,10 @@ SESSION_DRIVER=database
 SESSION_LIFETIME=120
 SESSION_ENCRYPT=false
 SESSION_PATH=/
-SESSION_DOMAIN=.akdev.tech
+SESSION_DOMAIN=.akdev.ci
 SESSION_SECURE_COOKIE=true
 
-SANCTUM_STATEFUL_DOMAINS=api-daoukro.akdev.tech,akdev.tech
+SANCTUM_STATEFUL_DOMAINS=api-daoukro.akdev.ci,akdev.ci,daoukro-pro.akdev.ci
 
 CACHE_STORE=database
 QUEUE_CONNECTION=database
@@ -249,12 +249,12 @@ BROADCAST_CONNECTION=log
 FILESYSTEM_DISK=public
 
 MAIL_MAILER=smtp
-MAIL_HOST=mail.akdev.tech
+MAIL_HOST=mail.akdev.ci
 MAIL_PORT=465
 MAIL_SCHEME=smtps
-MAIL_USERNAME=no-reply@akdev.tech
+MAIL_USERNAME=no-reply@akdev.ci
 MAIL_PASSWORD=xxxxx
-MAIL_FROM_ADDRESS="no-reply@akdev.tech"
+MAIL_FROM_ADDRESS="no-reply@akdev.ci"
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
@@ -326,23 +326,23 @@ composer install --no-dev --optimize-autoloader
 
 ```bash
 # 1. Le .env est-il protégé ?
-curl -sSI https://api-daoukro.akdev.tech/.env
+curl -sSI https://api-daoukro.akdev.ci/.env
 # attendu : 403 ou 404
 
 # 2. Le vendor est-il protégé ?
-curl -sSI https://api-daoukro.akdev.tech/vendor/autoload.php
+curl -sSI https://api-daoukro.akdev.ci/vendor/autoload.php
 # attendu : 403 ou 404
 
 # 3. L'application répond-elle ?
-curl -sSI https://api-daoukro.akdev.tech/
+curl -sSI https://api-daoukro.akdev.ci/
 # attendu : 200
 
 # 4. Une route métier renvoie-t-elle du JSON ?
-curl -s https://api-daoukro.akdev.tech/api/v1/pharmacies
+curl -s https://api-daoukro.akdev.ci/api/v1/pharmacies
 # attendu : {"success":true,"data":[...]}
 
 # 5. Les erreurs sont-elles masquées ? (APP_DEBUG=false)
-curl -s https://api-daoukro.akdev.tech/api/v1/route-inexistante
+curl -s https://api-daoukro.akdev.ci/api/v1/route-inexistante
 # attendu : page "Not Found" générique, SANS stack trace ni chemins serveur
 ```
 
@@ -381,9 +381,9 @@ Préfixe : **`/api/v1/`**
 ## 9. Côté application Flutter
 
 ```dart
-// lib/config/api_config.dart
-class ApiConfig {
-  static const String baseUrl = 'https://api-daoukro.akdev.tech/api/v1';
+// lib/core/constants/app_constants.dart
+class AppConstants {
+  static const String baseUrl = 'https://api-daoukro.akdev.ci/api/v1';
 }
 ```
 
@@ -455,7 +455,7 @@ Puis `source ~/.bashrc`. Les alias ne fonctionnent **pas** dans la même ligne d
 | `SQLSTATE[1045] Access denied` | utilisateur MySQL non rattaché à la base + mauvais mot de passe | rattacher + ALL PRIVILEGES + rotation du mot de passe |
 | `HTTP 403` sur `/` | DocumentRoot sur la racine du projet (pas d'`index.php`) | DocumentRoot → `/public` |
 | `HTTP 500` sur `/public/` | PHP 8.2 exécutait du code Laravel 12 | `AddHandler` PHP 8.3 |
-| Cookies sur `domain=.tondomaine.ci` | placeholder du `.env` non remplacé | `SESSION_DOMAIN=.akdev.tech` |
+| Cookies sur `domain=.tondomaine.ci` | placeholder du `.env` non remplacé | `SESSION_DOMAIN=.akdev.ci` |
 | `php83: command not found` | alias défini et utilisé sur la même ligne | chemin complet, ou `~/.bashrc` |
 
 ---

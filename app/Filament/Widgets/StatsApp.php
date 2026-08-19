@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Annonce;
+use App\Models\AppDevice;
 use App\Models\Artisan;
 use App\Models\Avis;
 use App\Models\Citoyen;
@@ -36,7 +37,40 @@ class StatsApp extends StatsOverviewWidget
                 $q->whereNull('plan_expire_at')->orWhere('plan_expire_at', '>', now());
             })->count();
 
+        // Statistiques appareils et installations (anti-doublons)
+        $totalDevices = AppDevice::count();
+        $androidDevices = AppDevice::where('platform', 'android')->count();
+        $iosPwaDevices = AppDevice::where('platform', 'ios_pwa')->count();
+        $pushActifs = AppDevice::whereNotNull('fcm_token')->where('fcm_token', '!=', '')->count();
+
+        // Si la table app_devices est vide mais que fcm_tokens contient d'anciens enregistrements
+        if ($totalDevices === 0 && FcmToken::count() > 0) {
+            $totalDevices = FcmToken::count();
+            $androidDevices = $totalDevices;
+            $pushActifs = $totalDevices;
+        }
+
         return [
+            Stat::make('Appareils uniques', $totalDevices)
+                ->description("Téléphones uniques enregistrés")
+                ->icon('heroicon-o-device-phone-mobile')
+                ->color('primary'),
+
+            Stat::make('Android (APK)', $androidDevices)
+                ->description('Installations APK Android')
+                ->icon('heroicon-o-cpu-chip')
+                ->color('success'),
+
+            Stat::make('iOS (PWA)', $iosPwaDevices)
+                ->description('Installations PWA iOS Safari')
+                ->icon('heroicon-o-globe-alt')
+                ->color('info'),
+
+            Stat::make('Notifications push actives', $pushActifs)
+                ->description('Appareils avec push activé')
+                ->icon('heroicon-o-bell')
+                ->color('warning'),
+
             Stat::make('Fiches en attente', $fichesEnAttente)
                 ->description($fichesEnAttente > 0 ? 'À valider ou rejeter' : 'Tout est traité')
                 ->icon('heroicon-o-document-check')
@@ -75,11 +109,6 @@ class StatsApp extends StatsOverviewWidget
                 ->description('Plans Standard / Pro / Business actifs')
                 ->icon('heroicon-o-credit-card')
                 ->color($abonnesActifs > 0 ? 'success' : 'gray'),
-
-            Stat::make('Appareils enregistrés', FcmToken::count())
-                ->description('Notifications push activées')
-                ->icon('heroicon-o-device-phone-mobile')
-                ->color('primary'),
 
             Stat::make('Avis à modérer', $avisEnAttente)
                 ->description($avisEnAttente > 0 ? 'En attente de validation' : 'Tout est traité')

@@ -28,6 +28,8 @@ class FcmService
         }
 
         $envoyes = 0;
+        $tokensInvalides = [];
+
         foreach ($tokens as $token) {
             $reponse = Http::withToken($accessToken)
                 ->post("https://fcm.googleapis.com/v1/projects/{$projetId}/messages:send", [
@@ -48,11 +50,26 @@ class FcmService
             if ($reponse->successful()) {
                 $envoyes++;
             } else {
+                $status = $reponse->status();
+                $body = $reponse->json() ?? [];
+                $errorCode = $body['error']['details'][0]['errorCode'] ?? $body['error']['status'] ?? null;
+
+                // Si le token est désenregistré ou invalide (ex: appli désinstallée)
+                if ($status === 404 || in_array($errorCode, ['UNREGISTERED', 'INVALID_ARGUMENT', 'NOT_FOUND'])) {
+                    $tokensInvalides[] = $token;
+                }
+
                 Log::warning('Échec envoi FCM', [
                     'token_debut' => substr($token, 0, 12) . '…',
-                    'reponse' => $reponse->json() ?? $reponse->body(),
+                    'reponse' => $body ?: $reponse->body(),
                 ]);
             }
+        }
+
+        // Nettoyage des tokens invalides pour garder une base saine
+        if (! empty($tokensInvalides)) {
+            \App\Models\AppDevice::whereIn('fcm_token', $tokensInvalides)->update(['fcm_token' => null]);
+            \App\Models\FcmToken::whereIn('token', $tokensInvalides)->delete();
         }
 
         return $envoyes;

@@ -79,8 +79,9 @@ Route::prefix('v1')->group(function () {
     // ── Settings (contenus pilotables depuis l'admin) ─────────
     Route::get('/settings', [SettingController::class, 'index']);
 
-    // ── Notifications FCM ─────────────────────────────────────
-    Route::post('/fcm-token',           [NotificationController::class, 'storeToken']);
+    // ── Notifications FCM & Gestion Appareils ─────────────────
+    Route::post('/devices/register',      [NotificationController::class, 'registerDevice']);
+    Route::post('/fcm-token',             [NotificationController::class, 'storeToken']);
     Route::post('/notifications/envoyer', [NotificationController::class, 'envoyer']);
 
     // ── Authentification ──────────────────────────────────────

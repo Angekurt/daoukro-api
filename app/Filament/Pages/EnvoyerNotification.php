@@ -90,7 +90,14 @@ class EnvoyerNotification extends Page
     {
         $state = $this->form->getState();
 
-        $tokens = FcmToken::pluck('token')->toArray();
+        $deviceTokens = \App\Models\AppDevice::whereNotNull('fcm_token')
+            ->where('fcm_token', '!=', '')
+            ->pluck('fcm_token')
+            ->toArray();
+
+        $legacyTokens = FcmToken::pluck('token')->toArray();
+
+        $tokens = array_values(array_unique(array_filter(array_merge($deviceTokens, $legacyTokens))));
 
         if (empty($tokens)) {
             Notification::make()

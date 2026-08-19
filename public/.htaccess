@@ -3,6 +3,14 @@
 # local (Laragon ignore cette directive).
 AddHandler application/x-httpd-alt-php83___lsphp .php
 
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, HEAD"
+    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    Header set Cross-Origin-Resource-Policy "cross-origin"
+</IfModule>
+
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

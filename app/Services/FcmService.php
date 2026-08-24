@@ -42,7 +42,11 @@ class FcmService
                         'data' => array_map('strval', $data),
                         'android' => [
                             'priority' => 'high',
-                            'notification' => ['sound' => 'default'],
+                            'notification' => [
+                                'sound' => 'default',
+                                'channel_id' => 'daoukro_channel',
+                                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                            ],
                         ],
                     ],
                 ]);

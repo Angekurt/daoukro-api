@@ -25,17 +25,24 @@ class NotificationController extends Controller
             'fcm_token'    => 'nullable|string|max:255',
         ]);
 
+        $attributes = [
+            'platform'       => $validated['platform'] ?? 'android',
+            'device_model'   => $validated['device_model'] ?? null,
+            'os_version'     => $validated['os_version'] ?? null,
+            'app_version'    => $validated['app_version'] ?? null,
+            'is_pwa'         => $validated['is_pwa'] ?? false,
+            'last_active_at' => now(),
+        ];
+
+        // Ne mettre à jour le token FCM que s'il est explicitement fourni
+        // afin de ne pas écraser un token valide lors du ping initial de l'application
+        if (! empty($validated['fcm_token'])) {
+            $attributes['fcm_token'] = $validated['fcm_token'];
+        }
+
         $device = AppDevice::updateOrCreate(
             ['device_id' => $validated['device_id']],
-            [
-                'platform'       => $validated['platform'] ?? 'android',
-                'device_model'   => $validated['device_model'] ?? null,
-                'os_version'     => $validated['os_version'] ?? null,
-                'app_version'    => $validated['app_version'] ?? null,
-                'is_pwa'         => $validated['is_pwa'] ?? false,
-                'fcm_token'      => $validated['fcm_token'] ?? null,
-                'last_active_at' => now(),
-            ]
+            $attributes
         );
 
         // Rétrocompatibilité : synchroniser également la table fcm_tokens si un token est présent

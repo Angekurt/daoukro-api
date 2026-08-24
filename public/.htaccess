@@ -4,11 +4,14 @@
 AddHandler application/x-httpd-alt-php83___lsphp .php
 
 <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, HEAD"
-    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    Header set Cross-Origin-Resource-Policy "cross-origin"
+    # En-têtes CORS pour les assets statiques uniquement (images, polices).
+    # Les routes API dynamiques sont gérées directement par le middleware Laravel (config/cors.php).
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|ico|ttf|woff|woff2)$">
+        Header set Access-Control-Allow-Origin "*"
+        Header set Cross-Origin-Resource-Policy "cross-origin"
+    </FilesMatch>
 </IfModule>
+
 
 
 <IfModule mod_rewrite.c>

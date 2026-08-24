@@ -38,18 +38,10 @@ class StatsApp extends StatsOverviewWidget
                 $q->whereNull('plan_expire_at')->orWhere('plan_expire_at', '>', now());
             })->count();
 
-        // Statistiques appareils et installations (anti-doublons)
-        $totalDevices = AppDevice::count();
+        // Statistiques réelles des appareils et installations
         $androidDevices = AppDevice::where('platform', 'android')->count();
-        $iosPwaDevices = AppDevice::where('platform', 'ios_pwa')->count();
+        $iosPwaDevices = AppDevice::whereIn('platform', ['ios_pwa', 'web'])->count();
         $pushActifs = AppDevice::whereNotNull('fcm_token')->where('fcm_token', '!=', '')->count();
-
-        // Si la table app_devices est vide mais que fcm_tokens contient d'anciens enregistrements
-        if ($totalDevices === 0 && FcmToken::count() > 0) {
-            $totalDevices = FcmToken::count();
-            $androidDevices = $totalDevices;
-            $pushActifs = $totalDevices;
-        }
 
         // Statistiques des pharmacies et gardes actives
         $gardesActives = Garde::actives()->with('pharmacie')->get();
@@ -57,23 +49,18 @@ class StatsApp extends StatsOverviewWidget
         $totalPharmacies = Pharmacie::where('is_active', true)->count();
 
         return [
-            Stat::make('Appareils uniques', $totalDevices)
-                ->description("Téléphones uniques enregistrés")
-                ->icon('heroicon-o-device-phone-mobile')
-                ->color('primary'),
-
             Stat::make('Android (APK)', $androidDevices)
-                ->description('Installations APK Android')
+                ->description('Installations réelles de l\'APK')
                 ->icon('heroicon-o-cpu-chip')
                 ->color('success'),
 
-            Stat::make('iOS (PWA)', $iosPwaDevices)
-                ->description('Installations PWA iOS Safari')
+            Stat::make('iOS & Web (PWA)', $iosPwaDevices)
+                ->description('Installations PWA (Safari / Web)')
                 ->icon('heroicon-o-globe-alt')
                 ->color('info'),
 
-            Stat::make('Notifications push actives', $pushActifs)
-                ->description('Appareils avec push activé')
+            Stat::make('Push actives', $pushActifs)
+                ->description('Appareils prêts à recevoir les alertes')
                 ->icon('heroicon-o-bell')
                 ->color('warning'),
 

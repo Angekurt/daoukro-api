@@ -48,6 +48,35 @@ class FcmService
                                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                             ],
                         ],
+                        'webpush' => [
+                            'headers' => [
+                                'Urgency' => 'high',
+                            ],
+                            'notification' => [
+                                'title' => $titre,
+                                'body' => $corps,
+                                'icon' => '/icons/Icon-192.png',
+                                'badge' => '/icons/Icon-192.png',
+                            ],
+                            'fcm_options' => [
+                                'link' => 'https://daoukro.akdev.ci/pwa/',
+                            ],
+                        ],
+                        'apns' => [
+                            'headers' => [
+                                'apns-priority' => '10',
+                            ],
+                            'payload' => [
+                                'aps' => [
+                                    'alert' => [
+                                        'title' => $titre,
+                                        'body' => $corps,
+                                    ],
+                                    'sound' => 'default',
+                                    'badge' => 1,
+                                ],
+                            ],
+                        ],
                     ],
                 ]);
 

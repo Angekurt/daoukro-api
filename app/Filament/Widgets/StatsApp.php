@@ -8,6 +8,7 @@ use App\Models\Artisan;
 use App\Models\Avis;
 use App\Models\Citoyen;
 use App\Models\FcmToken;
+use App\Models\Garde;
 use App\Models\Hebergement;
 use App\Models\Immobilier;
 use App\Models\Pharmacie;
@@ -49,6 +50,11 @@ class StatsApp extends StatsOverviewWidget
             $androidDevices = $totalDevices;
             $pushActifs = $totalDevices;
         }
+
+        // Statistiques des pharmacies et gardes actives
+        $gardesActives = Garde::actives()->with('pharmacie')->get();
+        $nbGardes = $gardesActives->count();
+        $totalPharmacies = Pharmacie::where('is_active', true)->count();
 
         return [
             Stat::make('Appareils uniques', $totalDevices)
@@ -96,9 +102,15 @@ class StatsApp extends StatsOverviewWidget
                 ->icon('heroicon-o-megaphone')
                 ->color('success'),
 
-            Stat::make('Pharmacies actives', Pharmacie::where('is_active', true)->count())
-                ->icon('heroicon-o-plus-circle')
-                ->color('success'),
+            Stat::make('Pharmacies de garde', $nbGardes > 0 ? "{$nbGardes} active(s)" : '0 de garde')
+                ->description($nbGardes > 0 ? ($gardesActives->pluck('pharmacie.nom')->filter()->implode(', ') ?: 'En service aujourd\'hui') : '⚠️ Aucune pharmacie de garde aujourd\'hui !')
+                ->icon($nbGardes > 0 ? 'heroicon-o-plus-circle' : 'heroicon-o-exclamation-triangle')
+                ->color($nbGardes > 0 ? 'success' : 'danger'),
+
+            Stat::make('Total Pharmacies', $totalPharmacies)
+                ->description('Établissements référencés à Daoukro')
+                ->icon('heroicon-o-building-office-2')
+                ->color('info'),
 
             Stat::make('Comptes pros', Citoyen::count())
                 ->description("+{$nouveauxComptesMonth} ce mois-ci")

@@ -22,7 +22,7 @@ class NotificationController extends Controller
             'os_version'   => 'nullable|string|max:50',
             'app_version'  => 'nullable|string|max:50',
             'is_pwa'       => 'nullable|boolean',
-            'fcm_token'    => 'nullable|string|max:255',
+            'fcm_token'    => 'nullable|string|max:1000',
         ]);
 
         $attributes = [
